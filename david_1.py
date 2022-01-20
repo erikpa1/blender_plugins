@@ -13,6 +13,31 @@ bl_info = {
 }
 
 
+class ClearSplitData(bpy.types.Operator):
+    bl_idname = "david.clear_split_data"
+    bl_label = "Clear split data"
+    bl_options = {'REGISTER', 'UNDO'}
+
+    def execute(self, context):
+
+        selected_mesh_objects = [o for o in context.selected_objects if o.type == 'MESH']
+
+        ao = context.view_layer.objects.active
+
+        for o in selected_mesh_objects:
+            context.view_layer.objects.active = o
+            r = bpy.ops.mesh.customdata_custom_splitnormals_clear()
+            print(o.name, r)
+
+        # obj: bpy.types.Object
+        # for obj in bpy.context.selected_objects:
+        #     data: bpy.types.Mesh = obj.data
+        #     data.custom
+        #     bpy.ops.mesh.customdata_custom_splitnormals_clear(data)
+
+        return {'FINISHED'}
+
+
 class EnableDisableAutoSmoothOperator(bpy.types.Operator):
     bl_idname = "david.enable_disable_autosmooth"
     bl_label = "Smooth control"
@@ -25,6 +50,7 @@ class EnableDisableAutoSmoothOperator(bpy.types.Operator):
 
     def execute(self, context):
 
+        obj: bpy.types.Object
         for obj in bpy.context.selected_objects:
             data: bpy.types.Mesh = obj.data
             data.use_auto_smooth = self.status
@@ -93,6 +119,10 @@ class DavidMainControlPanel(bpy.types.Panel):
             'david.enable_disable_autosmooth', text=f"Disable smooth")
         operator.status = False
 
+        operator = layout.operator('david.clear_split_data', text="Clear split data")
+
+        
+
 
 
 def register():
@@ -100,6 +130,7 @@ def register():
     bpy.utils.register_class(DavidMainControlPanel)
     bpy.utils.register_class(DavidCisticOperator)
     bpy.utils.register_class(EnableDisableAutoSmoothOperator)
+    bpy.utils.register_class(ClearSplitData)
 
 
 def unregister():
@@ -107,6 +138,7 @@ def unregister():
     bpy.utils.unregister_class(DavidCisticOperator)
     bpy.utils.unregister_class(DavidMainControlPanel)
     bpy.utils.unregister_class(EnableDisableAutoSmoothOperator)
+    bpy.utils.unregister_class(ClearSplitData)
 
 
 # if __name__ == "__main__":
