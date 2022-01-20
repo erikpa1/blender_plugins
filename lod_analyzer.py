@@ -1,5 +1,6 @@
 import bpy
 
+
 bl_info = {
     "name": "Lod analyzer",
     "author": "Erik Palencik",
@@ -8,7 +9,7 @@ bl_info = {
     "location": "View3D > Sidebar > Lod analyzer",
     "description": "Analyze LOD",
     "warning": "",
-    "doc_url": "{BLENDER_MANUAL_URL}/addons/3d_view/3d_navigation.html",
+    "doc_url": "",
     "category": "3D View",
 }
 
