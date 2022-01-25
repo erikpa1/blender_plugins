@@ -13,6 +13,12 @@ bl_info = {
 }
 
 
+globalProperty = bpy.props.FloatProperty(
+    name="smooth", default=30, min=0.0, max=180, soft_min=0.0, soft_max=180, step=1,
+
+)
+
+
 class ClearSplitData(bpy.types.Operator):
     bl_idname = "david.clear_split_data"
     bl_label = "Clear split data"
@@ -20,7 +26,8 @@ class ClearSplitData(bpy.types.Operator):
 
     def execute(self, context):
 
-        selected_mesh_objects = [o for o in context.selected_objects if o.type == 'MESH']
+        selected_mesh_objects = [
+            o for o in context.selected_objects if o.type == 'MESH']
 
         ao = context.view_layer.objects.active
 
@@ -38,6 +45,11 @@ class ClearSplitData(bpy.types.Operator):
         return {'FINISHED'}
 
 
+def setted(self, *args, **kwargs):
+    print(args)
+    return 0
+
+
 class EnableDisableAutoSmoothOperator(bpy.types.Operator):
     bl_idname = "david.enable_disable_autosmooth"
     bl_label = "Smooth control"
@@ -46,7 +58,10 @@ class EnableDisableAutoSmoothOperator(bpy.types.Operator):
     status:  bpy.props.BoolProperty(
         name="enable", default=True)
 
-    smoothLevel = bpy.props.IntProperty("smoothPower", default=30)
+    smoothValue: bpy.props.FloatProperty(
+        name="smooth", default=30, min=0.0, max=180, soft_min=0.0,
+        soft_max=180, step=1
+    )
 
     def execute(self, context):
 
@@ -63,7 +78,7 @@ class DavidCisticOperator(bpy.types.Operator):
     bl_label = "David Cistic"
     bl_options = {'REGISTER', 'UNDO'}
 
-    container:  bpy.props.StringProperty(
+    container: bpy.props.StringProperty(
         name="container", default="vertex_colors")
 
     def execute(self, context):
@@ -80,10 +95,12 @@ class DavidCisticOperator(bpy.types.Operator):
         else:
             for obj in bpy.context.selected_objects:
                 data: bpy.types.Mesh = obj.data
-                colors: bpy.types.LoopColors = getattr(data, self.container)
-                while colors:
-                    print(colors[0])
-                    colors.remove(colors[0])
+                if data:
+                    colors: bpy.types.LoopColors = getattr(
+                        data, self.container)
+                    while colors:
+                        print(colors[0])
+                        colors.remove(colors[0])
 
         return {'FINISHED'}
 
@@ -107,22 +124,28 @@ class DavidMainControlPanel(bpy.types.Panel):
             "face_maps",
         ]
 
+        layout.label(text="Object properties:")
+
         for i in data:
             operator = layout.operator('david.cistic', text=f"Delete: {i}")
             operator.container = i
 
+        layout.separator(factor=3)
+
+        operator = layout.operator(
+            'david.clear_split_data', text="Clear split data")
+
+        layout.label(text="Smoothing:")
+
         operator = layout.operator(
             'david.enable_disable_autosmooth', text=f"Enable smooth")
         operator.status = True
+        layout.prop(operator, "smoothValue", text="Smooth",
+                    slider=True)
 
         operator = layout.operator(
             'david.enable_disable_autosmooth', text=f"Disable smooth")
         operator.status = False
-
-        operator = layout.operator('david.clear_split_data', text="Clear split data")
-
-        
-
 
 
 def register():
