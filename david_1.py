@@ -1,4 +1,5 @@
 import bpy
+import math
 
 bl_info = {
     "name": "David 1",
@@ -13,10 +14,34 @@ bl_info = {
 }
 
 
-globalProperty = bpy.props.FloatProperty(
-    name="smooth", default=30, min=0.0, max=180, soft_min=0.0, soft_max=180, step=1,
+class SetSmoothOperator(bpy.types.Operator):
+    bl_idname = "david.smooth"
+    bl_label = "Smooth"
+    bl_options = {'REGISTER', 'UNDO'}
 
-)
+    smoothValue: bpy.props.FloatProperty(
+        name="smooth", default=30, min=0.0, max=180, soft_min=0.0,
+        soft_max=180, step=1
+    )
+
+    def invoke(self, context, event):
+        tmp = context.window_manager.invoke_props_dialog(self)
+
+        return tmp
+
+    def execute(self, context):
+        
+        meshes = context.selected_objects
+
+        o: bpy.types.Object
+        for o in meshes:
+            print(o.type)
+            if o.type == "MESH":
+                o.data.auto_smooth_angle = math.radians(self.smoothValue)
+                print("Angle: ", o.data.auto_smooth_angle)
+
+
+        return {'FINISHED'}
 
 
 class ClearSplitData(bpy.types.Operator):
@@ -58,11 +83,6 @@ class EnableDisableAutoSmoothOperator(bpy.types.Operator):
     status:  bpy.props.BoolProperty(
         name="enable", default=True)
 
-    smoothValue: bpy.props.FloatProperty(
-        name="smooth", default=30, min=0.0, max=180, soft_min=0.0,
-        soft_max=180, step=1
-    )
-
     def execute(self, context):
 
         obj: bpy.types.Object
@@ -71,6 +91,9 @@ class EnableDisableAutoSmoothOperator(bpy.types.Operator):
             data.use_auto_smooth = self.status
 
         return {'FINISHED'}
+
+    def invoke(self, context, event):
+        return context.window_manager.invoke_props_dialog(self)
 
 
 class DavidCisticOperator(bpy.types.Operator):
@@ -140,12 +163,13 @@ class DavidMainControlPanel(bpy.types.Panel):
         operator = layout.operator(
             'david.enable_disable_autosmooth', text=f"Enable smooth")
         operator.status = True
-        layout.prop(operator, "smoothValue", text="Smooth",
-                    slider=True)
 
         operator = layout.operator(
             'david.enable_disable_autosmooth', text=f"Disable smooth")
         operator.status = False
+
+        operator = layout.operator(
+            'david.smooth', text=f"Set smooth")
 
 
 def register():
@@ -154,6 +178,7 @@ def register():
     bpy.utils.register_class(DavidCisticOperator)
     bpy.utils.register_class(EnableDisableAutoSmoothOperator)
     bpy.utils.register_class(ClearSplitData)
+    bpy.utils.register_class(SetSmoothOperator)
 
 
 def unregister():
@@ -162,6 +187,7 @@ def unregister():
     bpy.utils.unregister_class(DavidMainControlPanel)
     bpy.utils.unregister_class(EnableDisableAutoSmoothOperator)
     bpy.utils.unregister_class(ClearSplitData)
+    bpy.utils.unregister_class(SetSmoothOperator)
 
 
 # if __name__ == "__main__":

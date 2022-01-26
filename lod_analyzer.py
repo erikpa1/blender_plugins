@@ -35,12 +35,14 @@ class ObjectSelector(bpy.types.Operator):
         someFound = False
 
         for i in bpy.data.objects.keys():
+            object = bpy.data.objects[i]
             if i.find(search_key) != -1:
-                someFound = True
-                bpy.data.objects[i].select_set(True)
-                bpy.data.objects[i].hide_set(False)
+                if object.type == "MESH":
+                    someFound = True
+                object.select_set(True)
+                object.hide_set(False)
             else:
-                bpy.data.objects[i].hide_set(True)
+                object.hide_set(True)
 
         if someFound:
             bpy.ops.object.mode_set(mode='EDIT')
