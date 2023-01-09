@@ -29,6 +29,22 @@ class ApplyScaleOperator(bpy.types.Operator):
 
         return {'FINISHED'}
 
+class ApplyRotationOperator(bpy.types.Operator):
+    bl_idname = "david.applyrotation"
+    bl_label = "Rotation"
+    bl_options = {'REGISTER', 'UNDO'}
+
+
+    def execute(self, context):
+        
+        meshes = context.selected_objects
+
+        if len(meshes) > 0:
+            bpy.ops.object.transform_apply(location = False, scale = False, rotation = True)
+
+        return {'FINISHED'}
+
+
 
 class SetSmoothOperator(bpy.types.Operator):
     bl_idname = "david.smooth"
@@ -178,6 +194,9 @@ class DavidMainControlPanel(bpy.types.Panel):
 
         operator = layout.operator(
             'david.applyscale', text=f"Apply scale")
+        
+        operator = layout.operator(
+            'david.applyrotation', text=f"Apply rotation")
 
         layout.label(text="Smoothing:")
 
@@ -201,6 +220,7 @@ def register():
     bpy.utils.register_class(ClearSplitData)
     bpy.utils.register_class(SetSmoothOperator)
     bpy.utils.register_class(ApplyScaleOperator)
+    bpy.utils.register_class(ApplyRotationOperator)
 
 def unregister():
     print("Unregistering David analyzer")
@@ -210,7 +230,7 @@ def unregister():
     bpy.utils.unregister_class(ClearSplitData)
     bpy.utils.unregister_class(SetSmoothOperator)
     bpy.utils.unregister_class(ApplyScaleOperator)
-
+    bpy.utils.unregister_class(ApplyRotationOperator)
 
 # if __name__ == "__main__":
 #     register()
